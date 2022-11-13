@@ -1,0 +1,145 @@
+service: ms-users
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-optimize
+
+useDotenv: true
+
+package:
+  individually: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  environment:
+    user_pool_id: { Ref: UserPool }
+    client_id: { Ref: UserClient }
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+          Resource: '*'
+
+functions:
+  create-user:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: users/create
+          cors: true
+  update-user:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: users/update
+          cors: true
+  delete-user:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: users/delete
+          cors: true
+  confirm-account:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/account/confirm
+          cors: true
+  confirm-email:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/email/confirm
+          cors: true
+  account-resend-code:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/account/resend/code
+          cors: true
+  authentication-user:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/login
+          cors: true
+  logout-user:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/logout
+          cors: true
+
+  private:
+    handler: dist/main.handler
+    events:
+      - http:
+          path: /private
+          method: GET
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+
+resources:
+  Resources:
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: costumer-auth-pool
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+          - Name: name
+            Required: true
+            Mutable: true
+        UsernameAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireNumbers: true
+            RequireLowercase: true
+            RequireSymbols: true
+            RequireUppercase: true
+        AutoVerifiedAttributes:
+          - email
+        AccountRecoverySetting:
+          RecoveryMechanisms:
+            - Name: verified_email
+              Priority: 1
+
+    UserClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: costumer-auth-pool-client
+        GenerateSecret: false
+        UserPoolId: { Ref: UserPool }
+        AccessTokenValidity: 5
+        IdTokenValidity: 5
+        ExplicitAuthFlows:
+          - ADMIN_NO_SRP_AUTH
