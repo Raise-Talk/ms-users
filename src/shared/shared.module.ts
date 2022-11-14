@@ -1,8 +1,7 @@
 import { FactoryProvider, Global, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { SecretsService } from './aws/secrets/secrets.service';
 
-const secretProviders: FactoryProvider<Object> = {
+const secretProviders: FactoryProvider<unknown> = {
   inject: [SecretsService],
   provide: 'awsSecrets',
   useFactory: async (secretService: SecretsService) => {

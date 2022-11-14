@@ -15,7 +15,7 @@ import { ConfirmAccountDto } from './dto/confirm-account.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LogoutUserDto } from './dto/logout-user.dto';
 import { ResendAccountCodeDto } from './dto/resend-account-code.dto';
-import { SecretsService } from 'src/shared/aws/secrets/secrets.service';
+import { SecretsService } from '../shared/aws/secrets/secrets.service';
 
 @Injectable()
 export class AuthService {

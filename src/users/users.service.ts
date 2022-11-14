@@ -5,7 +5,7 @@ import {
   CognitoUserAttribute,
   CognitoUserPool,
 } from 'amazon-cognito-identity-js';
-import { SecretsService } from 'src/shared/aws/secrets/secrets.service';
+import { SecretsService } from '../shared/aws/secrets/secrets.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
