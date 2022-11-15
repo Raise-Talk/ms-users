@@ -143,10 +143,22 @@
               "LogGroupName": "/aws/lambda/ms-users-dev-confirm-email"
             }
           },
+          "AccountDashpasswordDashconfirmLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/ms-users-dev-account-password-confirm"
+            }
+          },
           "AccountDashresendDashcodeLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
               "LogGroupName": "/aws/lambda/ms-users-dev-account-resend-code"
+            }
+          },
+          "AccountDashforgotDashpasswordLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/ms-users-dev-account-forgot-password"
             }
           },
           "AuthenticationDashuserLogGroup": {
@@ -257,7 +269,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/create-user.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/create-user.zip"
               },
               "Handler": "_optimize/ms-users-dev-create-user/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -292,7 +304,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/update-user.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/update-user.zip"
               },
               "Handler": "_optimize/ms-users-dev-update-user/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -327,7 +339,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/delete-user.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/delete-user.zip"
               },
               "Handler": "_optimize/ms-users-dev-delete-user/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -362,7 +374,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/confirm-account.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/confirm-account.zip"
               },
               "Handler": "_optimize/ms-users-dev-confirm-account/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -397,7 +409,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/confirm-email.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/confirm-email.zip"
               },
               "Handler": "_optimize/ms-users-dev-confirm-email/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -425,6 +437,41 @@
               "ConfirmDashemailLogGroup"
             ]
           },
+          "AccountDashpasswordDashconfirmLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/account-password-confirm.zip"
+              },
+              "Handler": "_optimize/ms-users-dev-account-password-confirm/dist/main.handler",
+              "Runtime": "nodejs14.x",
+              "FunctionName": "ms-users-dev-account-password-confirm",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "user_pool_id": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"user_pool_id\"]"
+                  },
+                  "client_id": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"client_id\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "AccountDashpasswordDashconfirmLogGroup"
+            ]
+          },
           "AccountDashresendDashcodeLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
@@ -432,7 +479,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/account-resend-code.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/account-resend-code.zip"
               },
               "Handler": "_optimize/ms-users-dev-account-resend-code/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -460,6 +507,41 @@
               "AccountDashresendDashcodeLogGroup"
             ]
           },
+          "AccountDashforgotDashpasswordLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/account-forgot-password.zip"
+              },
+              "Handler": "_optimize/ms-users-dev-account-forgot-password/dist/main.handler",
+              "Runtime": "nodejs14.x",
+              "FunctionName": "ms-users-dev-account-forgot-password",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Environment": {
+                "Variables": {
+                  "user_pool_id": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"user_pool_id\"]"
+                  },
+                  "client_id": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"client_id\"]"
+                  }
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "AccountDashforgotDashpasswordLogGroup"
+            ]
+          },
           "AuthenticationDashuserLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
@@ -467,7 +549,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/authentication-user.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/authentication-user.zip"
               },
               "Handler": "_optimize/ms-users-dev-authentication-user/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -502,7 +584,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/logout-user.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/logout-user.zip"
               },
               "Handler": "_optimize/ms-users-dev-logout-user/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -537,7 +619,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z/private.zip"
+                "S3Key": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z/private.zip"
               },
               "Handler": "_optimize/ms-users-dev-private/dist/main.handler",
               "Runtime": "nodejs14.x",
@@ -565,94 +647,114 @@
               "PrivateLogGroup"
             ]
           },
-          "CreateDashuserLambdaVersiont0YKt9o01neflx7t6CktoNjyLoSjTYM8LxgykdLSkY": {
+          "CreateDashuserLambdaVersionLe2m8DpSgkTlSP7PTaUIFKntguWdJDHZQdwVoxfg7PA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CreateDashuserLambdaFunction"
               },
-              "CodeSha256": "eE3NgrXA8gPGLmOURxEyyR+6A19fsRsV9untz5GTFXw="
+              "CodeSha256": "VZ3jQRLOLLodQTy3hM4F1i9EJ9pyIo8uysvaldCLJ+g="
             }
           },
-          "UpdateDashuserLambdaVersionA6BfYAJOf3K8VgwNccBpWD5VYtHwEYi30xuW7Sjg": {
+          "UpdateDashuserLambdaVersionkX7zImoUHdU29GWLO5mkUq6v9vBGfO442k48DS2RvK0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "UpdateDashuserLambdaFunction"
               },
-              "CodeSha256": "B3I2/1oeVSefMvzkjyUXZJpJLE4t64JKx5An7Qx5bPU="
+              "CodeSha256": "mNaEUnMD0OgkViOvpue6nl1VgZFtmAuyp00T37kXn2Y="
             }
           },
-          "DeleteDashuserLambdaVersionLIe8u4UqbsbbfW60f7tdd6qLbeaEearU9aaA1GptCI": {
+          "DeleteDashuserLambdaVersionqjpC0E6TUZllPljk2AxpXl0OraSy72svLCDTcIpixJ4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "DeleteDashuserLambdaFunction"
               },
-              "CodeSha256": "9iQd3ve7dbBcgu/ZdiAp+6EFlVgKkKxE5wtfg4hjBkI="
+              "CodeSha256": "pI5O2mZSnCpQMUInxety/ig4gLYHYKgIeJdt/fzK1hM="
             }
           },
-          "ConfirmDashaccountLambdaVersionBzEdSUVHCGzRqRsJh8vsqW4fdC7H35BI7byZMKis4": {
+          "ConfirmDashaccountLambdaVersionezwzOK3H35YD4TnCBI96jlitu10LjUSZyJg2AWGeU": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ConfirmDashaccountLambdaFunction"
               },
-              "CodeSha256": "lE/4QFsCMQU6iFjsp2u2PviTa6EQWWmUeELBM9V+J5k="
+              "CodeSha256": "rjhBAmDA7eARh/nRBO0cnC1o7UZKALZFtpaZvD8xTvA="
             }
           },
-          "AccountDashresendDashcodeLambdaVersionK1HY1OUvIIpYCoKkYY7pjNhIAhn2lJpfH9pg7Q6Kbo": {
+          "AccountDashpasswordDashconfirmLambdaVersionChAandN4dJst3PqIjJKQjB9OqmlmWiibHE7xUNYaU": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
-                "Ref": "AccountDashresendDashcodeLambdaFunction"
+                "Ref": "AccountDashpasswordDashconfirmLambdaFunction"
               },
-              "CodeSha256": "4CEr0thPEd8JTZWfZXPDIpBu0iL/I2qlmlcii/IZdx0="
+              "CodeSha256": "nyvESGDv9M+cQilRqecBY++NFp9gbUlMEGi1dTi6pNE="
             }
           },
-          "ConfirmDashemailLambdaVersion4GiaX5lFQOfQhZiVayVVcZHMDJrYWx4ZQiPQYpSrM": {
+          "ConfirmDashemailLambdaVersionp8ozkFiWUjSMVYpLGp29lYJvkPnLMGbPN6t6HpVZY": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ConfirmDashemailLambdaFunction"
               },
-              "CodeSha256": "jOHHdos607+KOhAVCiCGNeZGYmUEd0efSjIEWkbFsb0="
+              "CodeSha256": "psYavpx48xhzHdYKZE749Jvw2YBj5H/lVYpsT8PRyOg="
             }
           },
-          "AuthenticationDashuserLambdaVersionDlAg9IerInhw5nkl6w48byn1fAQs34UJwvxmIPzV0": {
+          "AccountDashresendDashcodeLambdaVersionBzyQQhQUFzjF9DNOaeO2uIwMuV2aHCmtY9dErvWEhms": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AccountDashresendDashcodeLambdaFunction"
+              },
+              "CodeSha256": "+09cHLFKEC/NXJXstdH28/jJtNqFp77KpyMQmhFoKDs="
+            }
+          },
+          "AccountDashforgotDashpasswordLambdaVersionQBs194pwXARNxTF9SiLDjPirOwazjb5sBgI9AZO7K4": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AccountDashforgotDashpasswordLambdaFunction"
+              },
+              "CodeSha256": "rEzJJCuyauoYrmV2eLVp91qlHofRm68WjKONvffyc2U="
+            }
+          },
+          "AuthenticationDashuserLambdaVersion0KrIpBC0SChnaSGdcE4jOVRoZepSYrKjYiPVXBEYP4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AuthenticationDashuserLambdaFunction"
               },
-              "CodeSha256": "QS3Ig8Z6RR1DL/KmnE9xxin+rbH4p/jdsz+v5yopKtg="
+              "CodeSha256": "EtY1Zc7ol0J/QSbOyhJqbCdQJGBPuebSNS3L9oo/y5o="
             }
           },
-          "LogoutDashuserLambdaVersionIoHoFUhD1igdvROXFe5dVKFGkflNCfDQuGMAKVXS6E": {
+          "LogoutDashuserLambdaVersionqOTiNj6ouVKOYhxYiumtnTiQcljSh4os2Yfn2E5Uo": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "LogoutDashuserLambdaFunction"
               },
-              "CodeSha256": "ZSy3Tc6+xJvuaRHIagWVLra1V30N1tOgea7TrHlTh2A="
+              "CodeSha256": "y9K31LCynJoOqa9oO08ApsWZehhM3llUZfnBCwJe7O4="
             }
           },
-          "PrivateLambdaVersionWNs9x9tG1dSLyVGMXeNqyarGo3pv2pFJuNj1Yo": {
+          "PrivateLambdaVersiongZjtbrb3wrPmuxmYcrvbV07Ae5pX1tXZ4vGI6f1ZdM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "PrivateLambdaFunction"
               },
-              "CodeSha256": "6aI8m/m4CH5NDhwtYBvndWQjdjT3NEeGMZbdn0+dEoE="
+              "CodeSha256": "ER3qF5EgbfwQ6v2m+txayJ7afj8GCEiAaN6QKjIPuPY="
             }
           },
           "ApiGatewayRestApi": {
@@ -757,6 +859,54 @@
               }
             }
           },
+          "ApiGatewayResourceAuthAccountEmail": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuthAccount"
+              },
+              "PathPart": "email",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthAccountEmailConfirm": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuthAccountEmail"
+              },
+              "PathPart": "confirm",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthAccountPassword": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuthAccount"
+              },
+              "PathPart": "password",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthAccountPasswordConfirm": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuthAccountPassword"
+              },
+              "PathPart": "confirm",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayResourceAuthAccountResend": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
@@ -781,25 +931,25 @@
               }
             }
           },
-          "ApiGatewayResourceAuthEmail": {
+          "ApiGatewayResourceAuthAccountForgotDashpassword": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
               "ParentId": {
-                "Ref": "ApiGatewayResourceAuth"
+                "Ref": "ApiGatewayResourceAuthAccount"
               },
-              "PathPart": "email",
+              "PathPart": "forgot-password",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
             }
           },
-          "ApiGatewayResourceAuthEmailConfirm": {
+          "ApiGatewayResourceAuthAccountLogout": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
               "ParentId": {
-                "Ref": "ApiGatewayResourceAuthEmail"
+                "Ref": "ApiGatewayResourceAuthAccount"
               },
-              "PathPart": "confirm",
+              "PathPart": "logout",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -812,18 +962,6 @@
                 "Ref": "ApiGatewayResourceAuth"
               },
               "PathPart": "login",
-              "RestApiId": {
-                "Ref": "ApiGatewayRestApi"
-              }
-            }
-          },
-          "ApiGatewayResourceAuthLogout": {
-            "Type": "AWS::ApiGateway::Resource",
-            "Properties": {
-              "ParentId": {
-                "Ref": "ApiGatewayResourceAuth"
-              },
-              "PathPart": "logout",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -1024,7 +1162,7 @@
               }
             }
           },
-          "ApiGatewayMethodAuthEmailConfirmOptions": {
+          "ApiGatewayMethodAuthAccountEmailConfirmOptions": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
               "AuthorizationType": "NONE",
@@ -1062,7 +1200,52 @@
                 ]
               },
               "ResourceId": {
-                "Ref": "ApiGatewayResourceAuthEmailConfirm"
+                "Ref": "ApiGatewayResourceAuthAccountEmailConfirm"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodAuthAccountPasswordConfirmOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthAccountPasswordConfirm"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -1114,6 +1297,51 @@
               }
             }
           },
+          "ApiGatewayMethodAuthAccountForgotDashpasswordOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthAccountForgotDashpassword"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayMethodAuthLoginOptions": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -1159,7 +1387,7 @@
               }
             }
           },
-          "ApiGatewayMethodAuthLogoutOptions": {
+          "ApiGatewayMethodAuthAccountLogoutOptions": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
               "AuthorizationType": "NONE",
@@ -1197,7 +1425,7 @@
                 ]
               },
               "ResourceId": {
-                "Ref": "ApiGatewayResourceAuthLogout"
+                "Ref": "ApiGatewayResourceAuthAccountLogout"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -1433,13 +1661,13 @@
               "ConfirmDashaccountLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayMethodAuthEmailConfirmPost": {
+          "ApiGatewayMethodAuthAccountEmailConfirmPost": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
               "HttpMethod": "POST",
               "RequestParameters": {},
               "ResourceId": {
-                "Ref": "ApiGatewayResourceAuthEmailConfirm"
+                "Ref": "ApiGatewayResourceAuthAccountEmailConfirm"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -1477,6 +1705,52 @@
             },
             "DependsOn": [
               "ConfirmDashemailLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodAuthAccountPasswordConfirmPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthAccountPasswordConfirm"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "AccountDashpasswordDashconfirmLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "AccountDashpasswordDashconfirmLambdaPermissionApiGateway"
             ]
           },
           "ApiGatewayMethodAuthAccountResendCodePost": {
@@ -1525,6 +1799,52 @@
               "AccountDashresendDashcodeLambdaPermissionApiGateway"
             ]
           },
+          "ApiGatewayMethodAuthAccountForgotDashpasswordPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthAccountForgotDashpassword"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "AccountDashforgotDashpasswordLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "AccountDashforgotDashpasswordLambdaPermissionApiGateway"
+            ]
+          },
           "ApiGatewayMethodAuthLoginPost": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -1571,13 +1891,13 @@
               "AuthenticationDashuserLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayMethodAuthLogoutPost": {
+          "ApiGatewayMethodAuthAccountLogoutPost": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
               "HttpMethod": "POST",
               "RequestParameters": {},
               "ResourceId": {
-                "Ref": "ApiGatewayResourceAuthLogout"
+                "Ref": "ApiGatewayResourceAuthAccountLogout"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -1684,7 +2004,7 @@
               ]
             }
           },
-          "ApiGatewayDeployment1668282701430": {
+          "ApiGatewayDeployment1668530086308": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -1697,19 +2017,23 @@
               "ApiGatewayMethodUsersUpdateOptions",
               "ApiGatewayMethodUsersDeleteOptions",
               "ApiGatewayMethodAuthAccountConfirmOptions",
-              "ApiGatewayMethodAuthEmailConfirmOptions",
+              "ApiGatewayMethodAuthAccountEmailConfirmOptions",
+              "ApiGatewayMethodAuthAccountPasswordConfirmOptions",
               "ApiGatewayMethodAuthAccountResendCodeOptions",
+              "ApiGatewayMethodAuthAccountForgotDashpasswordOptions",
               "ApiGatewayMethodAuthLoginOptions",
-              "ApiGatewayMethodAuthLogoutOptions",
+              "ApiGatewayMethodAuthAccountLogoutOptions",
               "ApiGatewayMethodPrivateOptions",
               "ApiGatewayMethodUsersCreatePost",
               "ApiGatewayMethodUsersUpdatePost",
               "ApiGatewayMethodUsersDeletePost",
               "ApiGatewayMethodAuthAccountConfirmPost",
-              "ApiGatewayMethodAuthEmailConfirmPost",
+              "ApiGatewayMethodAuthAccountEmailConfirmPost",
+              "ApiGatewayMethodAuthAccountPasswordConfirmPost",
               "ApiGatewayMethodAuthAccountResendCodePost",
+              "ApiGatewayMethodAuthAccountForgotDashpasswordPost",
               "ApiGatewayMethodAuthLoginPost",
-              "ApiGatewayMethodAuthLogoutPost",
+              "ApiGatewayMethodAuthAccountLogoutPost",
               "ApiGatewayMethodPrivateGet"
             ]
           },
@@ -1898,12 +2222,86 @@
               }
             }
           },
+          "AccountDashpasswordDashconfirmLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "AccountDashpasswordDashconfirmLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
           "AccountDashresendDashcodeLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
               "FunctionName": {
                 "Fn::GetAtt": [
                   "AccountDashresendDashcodeLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "AccountDashforgotDashpasswordLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "AccountDashforgotDashpasswordLambdaFunction",
                   "Arn"
                 ]
               },
@@ -2115,7 +2513,7 @@
           "CreateDashuserLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CreateDashuserLambdaVersiont0YKt9o01neflx7t6CktoNjyLoSjTYM8LxgykdLSkY"
+              "Ref": "CreateDashuserLambdaVersionLe2m8DpSgkTlSP7PTaUIFKntguWdJDHZQdwVoxfg7PA"
             },
             "Export": {
               "Name": "sls-ms-users-dev-CreateDashuserLambdaFunctionQualifiedArn"
@@ -2124,7 +2522,7 @@
           "UpdateDashuserLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "UpdateDashuserLambdaVersionA6BfYAJOf3K8VgwNccBpWD5VYtHwEYi30xuW7Sjg"
+              "Ref": "UpdateDashuserLambdaVersionkX7zImoUHdU29GWLO5mkUq6v9vBGfO442k48DS2RvK0"
             },
             "Export": {
               "Name": "sls-ms-users-dev-UpdateDashuserLambdaFunctionQualifiedArn"
@@ -2133,7 +2531,7 @@
           "DeleteDashuserLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "DeleteDashuserLambdaVersionLIe8u4UqbsbbfW60f7tdd6qLbeaEearU9aaA1GptCI"
+              "Ref": "DeleteDashuserLambdaVersionqjpC0E6TUZllPljk2AxpXl0OraSy72svLCDTcIpixJ4"
             },
             "Export": {
               "Name": "sls-ms-users-dev-DeleteDashuserLambdaFunctionQualifiedArn"
@@ -2142,34 +2540,52 @@
           "ConfirmDashaccountLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ConfirmDashaccountLambdaVersionBzEdSUVHCGzRqRsJh8vsqW4fdC7H35BI7byZMKis4"
+              "Ref": "ConfirmDashaccountLambdaVersionezwzOK3H35YD4TnCBI96jlitu10LjUSZyJg2AWGeU"
             },
             "Export": {
               "Name": "sls-ms-users-dev-ConfirmDashaccountLambdaFunctionQualifiedArn"
             }
           },
-          "AccountDashresendDashcodeLambdaFunctionQualifiedArn": {
+          "AccountDashpasswordDashconfirmLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AccountDashresendDashcodeLambdaVersionK1HY1OUvIIpYCoKkYY7pjNhIAhn2lJpfH9pg7Q6Kbo"
+              "Ref": "AccountDashpasswordDashconfirmLambdaVersionChAandN4dJst3PqIjJKQjB9OqmlmWiibHE7xUNYaU"
             },
             "Export": {
-              "Name": "sls-ms-users-dev-AccountDashresendDashcodeLambdaFunctionQualifiedArn"
+              "Name": "sls-ms-users-dev-AccountDashpasswordDashconfirmLambdaFunctionQualifiedArn"
             }
           },
           "ConfirmDashemailLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ConfirmDashemailLambdaVersion4GiaX5lFQOfQhZiVayVVcZHMDJrYWx4ZQiPQYpSrM"
+              "Ref": "ConfirmDashemailLambdaVersionp8ozkFiWUjSMVYpLGp29lYJvkPnLMGbPN6t6HpVZY"
             },
             "Export": {
               "Name": "sls-ms-users-dev-ConfirmDashemailLambdaFunctionQualifiedArn"
             }
           },
+          "AccountDashresendDashcodeLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AccountDashresendDashcodeLambdaVersionBzyQQhQUFzjF9DNOaeO2uIwMuV2aHCmtY9dErvWEhms"
+            },
+            "Export": {
+              "Name": "sls-ms-users-dev-AccountDashresendDashcodeLambdaFunctionQualifiedArn"
+            }
+          },
+          "AccountDashforgotDashpasswordLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AccountDashforgotDashpasswordLambdaVersionQBs194pwXARNxTF9SiLDjPirOwazjb5sBgI9AZO7K4"
+            },
+            "Export": {
+              "Name": "sls-ms-users-dev-AccountDashforgotDashpasswordLambdaFunctionQualifiedArn"
+            }
+          },
           "AuthenticationDashuserLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AuthenticationDashuserLambdaVersionDlAg9IerInhw5nkl6w48byn1fAQs34UJwvxmIPzV0"
+              "Ref": "AuthenticationDashuserLambdaVersion0KrIpBC0SChnaSGdcE4jOVRoZepSYrKjYiPVXBEYP4"
             },
             "Export": {
               "Name": "sls-ms-users-dev-AuthenticationDashuserLambdaFunctionQualifiedArn"
@@ -2178,7 +2594,7 @@
           "LogoutDashuserLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "LogoutDashuserLambdaVersionIoHoFUhD1igdvROXFe5dVKFGkflNCfDQuGMAKVXS6E"
+              "Ref": "LogoutDashuserLambdaVersionqOTiNj6ouVKOYhxYiumtnTiQcljSh4os2Yfn2E5Uo"
             },
             "Export": {
               "Name": "sls-ms-users-dev-LogoutDashuserLambdaFunctionQualifiedArn"
@@ -2187,7 +2603,7 @@
           "PrivateLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "PrivateLambdaVersionWNs9x9tG1dSLyVGMXeNqyarGo3pv2pFJuNj1Yo"
+              "Ref": "PrivateLambdaVersiongZjtbrb3wrPmuxmYcrvbV07Ae5pX1tXZ4vGI6f1ZdM"
             },
             "Export": {
               "Name": "sls-ms-users-dev-PrivateLambdaFunctionQualifiedArn"
@@ -2347,13 +2763,13 @@
           "include": [
             "_optimize/ms-users-dev-create-user/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/create-user.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/create-user.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "CreateDashuserLambdaVersiont0YKt9o01neflx7t6CktoNjyLoSjTYM8LxgykdLSkY"
+        "versionLogicalId": "CreateDashuserLambdaVersionLe2m8DpSgkTlSP7PTaUIFKntguWdJDHZQdwVoxfg7PA"
       },
       "update-user": {
         "handler": "_optimize/ms-users-dev-update-user/dist/main.handler",
@@ -2391,13 +2807,13 @@
           "include": [
             "_optimize/ms-users-dev-update-user/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/update-user.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/update-user.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "UpdateDashuserLambdaVersionA6BfYAJOf3K8VgwNccBpWD5VYtHwEYi30xuW7Sjg"
+        "versionLogicalId": "UpdateDashuserLambdaVersionkX7zImoUHdU29GWLO5mkUq6v9vBGfO442k48DS2RvK0"
       },
       "delete-user": {
         "handler": "_optimize/ms-users-dev-delete-user/dist/main.handler",
@@ -2435,13 +2851,13 @@
           "include": [
             "_optimize/ms-users-dev-delete-user/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/delete-user.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/delete-user.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "DeleteDashuserLambdaVersionLIe8u4UqbsbbfW60f7tdd6qLbeaEearU9aaA1GptCI"
+        "versionLogicalId": "DeleteDashuserLambdaVersionqjpC0E6TUZllPljk2AxpXl0OraSy72svLCDTcIpixJ4"
       },
       "confirm-account": {
         "handler": "_optimize/ms-users-dev-confirm-account/dist/main.handler",
@@ -2479,13 +2895,13 @@
           "include": [
             "_optimize/ms-users-dev-confirm-account/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/confirm-account.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/confirm-account.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "ConfirmDashaccountLambdaVersionBzEdSUVHCGzRqRsJh8vsqW4fdC7H35BI7byZMKis4"
+        "versionLogicalId": "ConfirmDashaccountLambdaVersionezwzOK3H35YD4TnCBI96jlitu10LjUSZyJg2AWGeU"
       },
       "confirm-email": {
         "handler": "_optimize/ms-users-dev-confirm-email/dist/main.handler",
@@ -2493,7 +2909,7 @@
           {
             "http": {
               "method": "post",
-              "path": "auth/email/confirm",
+              "path": "auth/account/email/confirm",
               "cors": {
                 "origin": "*",
                 "methods": [
@@ -2523,13 +2939,57 @@
           "include": [
             "_optimize/ms-users-dev-confirm-email/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/confirm-email.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/confirm-email.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "ConfirmDashemailLambdaVersion4GiaX5lFQOfQhZiVayVVcZHMDJrYWx4ZQiPQYpSrM"
+        "versionLogicalId": "ConfirmDashemailLambdaVersionp8ozkFiWUjSMVYpLGp29lYJvkPnLMGbPN6t6HpVZY"
+      },
+      "account-password-confirm": {
+        "handler": "_optimize/ms-users-dev-account-password-confirm/dist/main.handler",
+        "events": [
+          {
+            "http": {
+              "method": "post",
+              "path": "auth/account/password/confirm",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "ms-users-dev-account-password-confirm",
+        "package": {
+          "exclude": [
+            "**"
+          ],
+          "include": [
+            "_optimize/ms-users-dev-account-password-confirm/**"
+          ],
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/account-password-confirm.zip"
+        },
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs14.x",
+        "vpc": {},
+        "versionLogicalId": "AccountDashpasswordDashconfirmLambdaVersionChAandN4dJst3PqIjJKQjB9OqmlmWiibHE7xUNYaU"
       },
       "account-resend-code": {
         "handler": "_optimize/ms-users-dev-account-resend-code/dist/main.handler",
@@ -2567,13 +3027,57 @@
           "include": [
             "_optimize/ms-users-dev-account-resend-code/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/account-resend-code.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/account-resend-code.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "AccountDashresendDashcodeLambdaVersionK1HY1OUvIIpYCoKkYY7pjNhIAhn2lJpfH9pg7Q6Kbo"
+        "versionLogicalId": "AccountDashresendDashcodeLambdaVersionBzyQQhQUFzjF9DNOaeO2uIwMuV2aHCmtY9dErvWEhms"
+      },
+      "account-forgot-password": {
+        "handler": "_optimize/ms-users-dev-account-forgot-password/dist/main.handler",
+        "events": [
+          {
+            "http": {
+              "method": "post",
+              "path": "auth/account/forgot-password",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "ms-users-dev-account-forgot-password",
+        "package": {
+          "exclude": [
+            "**"
+          ],
+          "include": [
+            "_optimize/ms-users-dev-account-forgot-password/**"
+          ],
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/account-forgot-password.zip"
+        },
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs14.x",
+        "vpc": {},
+        "versionLogicalId": "AccountDashforgotDashpasswordLambdaVersionQBs194pwXARNxTF9SiLDjPirOwazjb5sBgI9AZO7K4"
       },
       "authentication-user": {
         "handler": "_optimize/ms-users-dev-authentication-user/dist/main.handler",
@@ -2611,13 +3115,13 @@
           "include": [
             "_optimize/ms-users-dev-authentication-user/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/authentication-user.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/authentication-user.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "AuthenticationDashuserLambdaVersionDlAg9IerInhw5nkl6w48byn1fAQs34UJwvxmIPzV0"
+        "versionLogicalId": "AuthenticationDashuserLambdaVersion0KrIpBC0SChnaSGdcE4jOVRoZepSYrKjYiPVXBEYP4"
       },
       "logout-user": {
         "handler": "_optimize/ms-users-dev-logout-user/dist/main.handler",
@@ -2625,7 +3129,7 @@
           {
             "http": {
               "method": "post",
-              "path": "auth/logout",
+              "path": "auth/account/logout",
               "cors": {
                 "origin": "*",
                 "methods": [
@@ -2655,13 +3159,13 @@
           "include": [
             "_optimize/ms-users-dev-logout-user/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/logout-user.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/logout-user.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "LogoutDashuserLambdaVersionIoHoFUhD1igdvROXFe5dVKFGkflNCfDQuGMAKVXS6E"
+        "versionLogicalId": "LogoutDashuserLambdaVersionqOTiNj6ouVKOYhxYiumtnTiQcljSh4os2Yfn2E5Uo"
       },
       "private": {
         "handler": "_optimize/ms-users-dev-private/dist/main.handler",
@@ -2715,13 +3219,13 @@
           "include": [
             "_optimize/ms-users-dev-private/**"
           ],
-          "artifact": "/home/arsene/Desktop/ms-users/.serverless/private.zip"
+          "artifact": "/media/arsene/projects/raiset-talk/ms-users/.serverless/private.zip"
         },
         "memory": 1024,
         "timeout": 6,
         "runtime": "nodejs14.x",
         "vpc": {},
-        "versionLogicalId": "PrivateLambdaVersionWNs9x9tG1dSLyVGMXeNqyarGo3pv2pFJuNj1Yo"
+        "versionLogicalId": "PrivateLambdaVersiongZjtbrb3wrPmuxmYcrvbV07Ae5pX1tXZ4vGI6f1ZdM"
       }
     },
     "resources": {
@@ -2796,7 +3300,7 @@
       "package": {
         "individually": true,
         "artifactsS3KeyDirname": "serverless/ms-users/dev/code-artifacts",
-        "artifactDirectoryName": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z"
+        "artifactDirectoryName": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z"
       },
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
@@ -2813,7 +3317,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/ms-users/dev/1668282913210-2022-11-12T19:55:13.210Z",
+    "artifactDirectoryName": "serverless/ms-users/dev/1668530370334-2022-11-15T16:39:30.334Z",
     "artifact": ""
   }
 }

@@ -16,6 +16,8 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { LogoutUserDto } from './dto/logout-user.dto';
 import { ResendAccountCodeDto } from './dto/resend-account-code.dto';
 import { SecretsService } from '../shared/aws/secrets/secrets.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ConfirmPasswordDto } from './dto/confirm-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -80,6 +82,42 @@ export class AuthService {
         },
         onFailure: (err) => {
           reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        },
+      });
+    });
+  }
+
+  async forgotPassword({ email }: ForgotPasswordDto) {
+    const cognitoUser = new CognitoUser({
+      Username: email,
+      Pool: this.userPool,
+    });
+
+    return new Promise((resolve, reject) => {
+      cognitoUser.forgotPassword({
+        onSuccess: (result) => {
+          resolve(result);
+        },
+        onFailure: (err) => {
+          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        },
+      });
+    });
+  }
+
+  async confirmPassword({ email, code, newPassword }: ConfirmPasswordDto) {
+    const cognitoUser = new CognitoUser({
+      Username: email,
+      Pool: this.userPool,
+    });
+
+    return new Promise((resolve, reject) => {
+      cognitoUser.confirmPassword(code, newPassword, {
+        onSuccess: (result) => {
+          resolve(new HttpException(result, HttpStatus.OK));
+        },
+        onFailure: (err) => {
+          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
         },
       });
     });

@@ -5,6 +5,8 @@ import { ConfirmAccountDto } from './dto/confirm-account.dto';
 import { LogoutUserDto } from './dto/logout-user.dto';
 import { ConfirmEmailDto } from './dto/confirm-email.dto';
 import { ResendAccountCodeDto } from './dto/resend-account-code.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ConfirmPasswordDto } from './dto/confirm-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,17 +22,27 @@ export class AuthController {
     return await this.authService.confirmAccount(confirmAccountDto);
   }
 
+  @Post('/account/forgot-password')
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Post('/account/password/confirm')
+  async confirmPassword(@Body() confirmPasswordDto: ConfirmPasswordDto) {
+    return await this.authService.confirmPassword(confirmPasswordDto);
+  }
+
   @Post('/account/resend/code')
   async resendAccountCode(@Body() resendAccountCodeDto: ResendAccountCodeDto) {
     return await this.authService.resendAccountCode(resendAccountCodeDto);
   }
 
-  @Post('/email/confirm')
+  @Post('account/email/confirm')
   async confirmEmail(@Body() confirmEmailDto: ConfirmEmailDto) {
     return await this.authService.confirmEmail(confirmEmailDto);
   }
 
-  @Post('/logout')
+  @Post('account/logout')
   async logout(@Body() logoutUserDto: LogoutUserDto) {
     return await this.authService.logout(logoutUserDto);
   }

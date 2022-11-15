@@ -1,7 +1,8 @@
 # compiled output
 /dist
 /node_modules
-
+/.serverless
+_optimize
 # Logs
 logs
 *.log

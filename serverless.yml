@@ -63,7 +63,14 @@ functions:
     events:
       - http:
           method: POST
-          path: auth/email/confirm
+          path: auth/account/email/confirm
+          cors: true
+  account-password-confirm:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/account/password/confirm
           cors: true
   account-resend-code:
     handler: dist/main.handler
@@ -71,6 +78,13 @@ functions:
       - http:
           method: POST
           path: auth/account/resend/code
+          cors: true
+  account-forgot-password:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: POST
+          path: auth/account/forgot-password
           cors: true
   authentication-user:
     handler: dist/main.handler
@@ -84,7 +98,7 @@ functions:
     events:
       - http:
           method: POST
-          path: auth/logout
+          path: auth/account/logout
           cors: true
 
   private:
