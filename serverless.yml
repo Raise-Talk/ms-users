@@ -30,79 +30,129 @@ provider:
           Resource: '*'
 
 functions:
+  get-me-user:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: GET
+          path: users/me
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+  list-users:
+    handler: dist/lambda.handler
+    events:
+      - http:
+          method: GET
+          path: users/list
+          cors: true
   create-user:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: users/create
           cors: true
   update-user:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
-          method: POST
+          method: PATCH
           path: users/update
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
   delete-user:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
-          method: POST
+          method: DELETE
           path: users/delete
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
   confirm-account:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/account/confirm
           cors: true
   confirm-email:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/account/email/confirm
           cors: true
   account-password-confirm:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/account/password/confirm
           cors: true
   account-resend-code:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/account/resend/code
           cors: true
   account-forgot-password:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/account/forgot-password
           cors: true
   authentication-user:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/login
           cors: true
   logout-user:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           method: POST
           path: auth/account/logout
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
 
   private:
-    handler: dist/main.handler
+    handler: dist/lambda.handler
     events:
       - http:
           path: /private

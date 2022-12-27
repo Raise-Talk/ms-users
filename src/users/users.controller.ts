@@ -4,8 +4,8 @@ import {
   Post,
   Body,
   Patch,
-  Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,17 +16,27 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('/me')
+  me(@Query('accessToken') accessToken: string) {
+    return this.usersService.me(accessToken);
+  }
+
+  @Get('/list')
+  list() {
+    return this.usersService.list();
+  }
+
   @Post('/create')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  @Post('/update')
+  @Patch('/update')
   update(@Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(updateUserDto);
   }
 
-  @Post('/delete')
+  @Delete('/delete')
   delete(@Body() deleteUserDto: DeleteUserDto) {
     return this.usersService.delete(deleteUserDto);
   }

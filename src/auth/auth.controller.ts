@@ -29,7 +29,7 @@ export class AuthController {
 
   @Post('/account/password/confirm')
   async confirmPassword(@Body() confirmPasswordDto: ConfirmPasswordDto) {
-    return await this.authService.confirmPassword(confirmPasswordDto);
+    return await this.authService.confirmForgotPassword(confirmPasswordDto);
   }
 
   @Post('/account/resend/code')

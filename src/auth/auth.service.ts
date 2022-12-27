@@ -1,211 +1,177 @@
-import {
-  assignMetadata,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
-import {
-  AuthenticationDetails,
-  CognitoUser,
-  CognitoUserPool,
-} from 'amazon-cognito-identity-js';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { AuthenticationDetails, CognitoUser } from 'amazon-cognito-identity-js';
+
+import * as AWS from '@aws-sdk/client-cognito-identity-provider';
+
 import { ConfirmEmailDto } from './dto/confirm-email.dto';
 import { ConfirmAccountDto } from './dto/confirm-account.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LogoutUserDto } from './dto/logout-user.dto';
 import { ResendAccountCodeDto } from './dto/resend-account-code.dto';
-import { SecretsService } from '../shared/aws/secrets/secrets.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ConfirmPasswordDto } from './dto/confirm-password.dto';
+import { AwsSdk } from 'src/shared/aws/sdk/sdk.service';
 
 @Injectable()
-export class AuthService {
-  private userPool: CognitoUserPool;
-
-  constructor(
-    private secretService: SecretsService,
-    @Inject('awsSecrets')
-    private readonly awsSecrets: string,
-  ) {
-    this.userPool = new CognitoUserPool({
-      UserPoolId: awsSecrets['AWS_COGNITO_USER_POOL_ID'],
-      ClientId: awsSecrets['AWS_COGNITO_CLIENT_ID'],
-    });
-  }
-
+export class AuthService extends AwsSdk {
   async authenticateUser({ email, password }: LoginUserDto) {
-    const userData = {
-      Username: email,
-      Pool: this.userPool,
+    const params = {
+      AuthFlow: this.awsSecrets['AWS_COGNITO_AUTH_FLOW'],
+      ClientId: this.awsSecrets['AWS_COGNITO_CLIENT_ID'],
+      AuthParameters: {
+        USERNAME: email,
+        PASSWORD: password,
+      },
     };
 
-    const authenticationDetails = new AuthenticationDetails({
-      Username: email,
-      Password: password,
-    });
-
-    const userCognito = new CognitoUser(userData);
-
     return new Promise((resolve, reject) => {
-      userCognito.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-          const accessAuth = {
-            idToken: result.getIdToken().getJwtToken(),
-            accessToken: result.getAccessToken().getJwtToken(),
-            refreshToken: result.getRefreshToken().getToken(),
+      this.clientCognito
+        .initiateAuth(params)
+        .then((response) => {
+          const params = {
+            AccessToken: response.AuthenticationResult.AccessToken,
           };
 
-          resolve(
-            new Promise(function (resolve, reject) {
-              userCognito.getUserAttributes((err, result) => {
-                if (err)
-                  reject(
-                    new HttpException(err.message, HttpStatus.BAD_REQUEST),
-                  );
+          this.clientCognito
+            .getUser(params)
+            .then((res) => {
+              const usersAttr: any = res.UserAttributes.reduce(
+                (result, { Name, Value }) => {
+                  return { ...result, [Name]: Value };
+                },
+                {},
+              );
 
-                const user_data = JSON.parse(JSON.stringify(result)).reduce(
-                  (obj, item) =>
-                    Object.assign(obj, { [item.Name]: item.Value }),
-                  {},
-                );
+              resolve(
+                new HttpException(
+                  { ...usersAttr, ...response.AuthenticationResult },
+                  HttpStatus.OK,
+                ),
+              );
+            })
 
-                resolve(
-                  new HttpException(
-                    Object.assign(accessAuth, user_data),
-                    HttpStatus.OK,
-                  ),
-                );
-              });
-            }),
-          );
-        },
-        onFailure: (err) => {
+            .catch((err) => {
+              reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+            });
+        })
+        .catch((err) => {
           reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        },
-      });
+        });
     });
   }
 
   async forgotPassword({ email }: ForgotPasswordDto) {
-    const cognitoUser = new CognitoUser({
+    const params = {
+      ClientId: this.awsSecrets['AWS_COGNITO_CLIENT_ID'],
       Username: email,
-      Pool: this.userPool,
-    });
+    };
 
     return new Promise((resolve, reject) => {
-      cognitoUser.forgotPassword({
-        onSuccess: (result) => {
-          resolve(result);
-        },
-        onFailure: (err) => {
-          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        },
-      });
+      this.clientCognito
+        .forgotPassword(params)
+        .then((res) => {
+          resolve(new HttpException(res.CodeDeliveryDetails, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
     });
   }
 
-  async confirmPassword({ email, code, newPassword }: ConfirmPasswordDto) {
-    const cognitoUser = new CognitoUser({
+  async confirmForgotPassword({
+    email,
+    code,
+    newPassword,
+  }: ConfirmPasswordDto) {
+    const params = {
+      ClientId: this.awsSecrets['AWS_COGNITO_CLIENT_ID'],
+      ConfirmationCode: code,
+      Password: newPassword,
       Username: email,
-      Pool: this.userPool,
-    });
+    };
 
     return new Promise((resolve, reject) => {
-      cognitoUser.confirmPassword(code, newPassword, {
-        onSuccess: (result) => {
-          resolve(new HttpException(result, HttpStatus.OK));
-        },
-        onFailure: (err) => {
-          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        },
-      });
+      this.clientCognito
+        .confirmForgotPassword(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
     });
   }
 
   async confirmAccount({ email, code }: ConfirmAccountDto) {
-    const cognitoUser = new CognitoUser({
+    const params = {
+      ClientId: this.awsSecrets['AWS_COGNITO_CLIENT_ID'],
+      ConfirmationCode: code,
       Username: email,
-      Pool: this.userPool,
-    });
+    };
 
     return new Promise((resolve, reject) => {
-      cognitoUser.confirmRegistration(code, true, (err, result) => {
-        if (err) {
-          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        }
-
-        resolve(new HttpException(result, HttpStatus.OK));
-      });
+      this.clientCognito
+        .confirmSignUp(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
     });
   }
 
   async resendAccountCode({ email }: ResendAccountCodeDto) {
-    const cognitoUser = new CognitoUser({
+    const params = {
+      ClientId: this.awsSecrets['AWS_COGNITO_CLIENT_ID'],
       Username: email,
-      Pool: this.userPool,
-    });
-
-    return new Promise((resolve, reject) => {
-      cognitoUser.resendConfirmationCode((err, result) => {
-        if (err) {
-          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        }
-
-        resolve(new HttpException(result, HttpStatus.OK));
-      });
-    });
-  }
-
-  async confirmEmail({ email, password, code }: ConfirmEmailDto) {
-    const userData = {
-      Username: email,
-      Pool: this.userPool,
     };
 
-    const authenticationDetails = new AuthenticationDetails({
-      Username: email,
-      Password: password,
-    });
-
-    const userCognito = new CognitoUser(userData);
-
     return new Promise((resolve, reject) => {
-      userCognito.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-          resolve(
-            new Promise(function (resolve, reject) {
-              userCognito.verifyAttribute('email', code, {
-                onSuccess: (result) => {
-                  resolve(new HttpException(result, HttpStatus.OK));
-                },
-                onFailure: (err) => {
-                  reject(
-                    new HttpException(err.message, HttpStatus.BAD_REQUEST),
-                  );
-                },
-              });
-            }),
-          );
-        },
-        onFailure: (err) => {
+      this.clientCognito
+        .resendConfirmationCode(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
           reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        },
-      });
+        });
     });
   }
 
-  async logout({ email }: LogoutUserDto) {
-    const cognitoUser = new CognitoUser({
-      Username: email,
-      Pool: this.userPool,
-    });
+  async confirmEmail({ email, access_token, code }: ConfirmEmailDto) {
+    const params = {
+      AccessToken: access_token,
+      AttributeName: 'email',
+      Code: code,
+    };
 
-    try {
-      cognitoUser.signOut();
-      return new HttpException('ok', HttpStatus.OK);
-    } catch (error) {
-      return new HttpException(error, HttpStatus.OK);
-    }
+    return new Promise((resolve, reject) => {
+      this.clientCognito
+        .verifyUserAttribute(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
+    });
+  }
+
+  async logout({ access_token }: LogoutUserDto) {
+    const params = {
+      AccessToken: access_token,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.clientCognito
+        .globalSignOut(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
+    });
   }
 }

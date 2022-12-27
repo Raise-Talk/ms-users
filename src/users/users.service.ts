@@ -1,121 +1,150 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import {
-  AuthenticationDetails,
-  CognitoUser,
-  CognitoUserAttribute,
-  CognitoUserPool,
-} from 'amazon-cognito-identity-js';
-import { SecretsService } from '../shared/aws/secrets/secrets.service';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
+import { AwsSdk } from 'src/shared/aws/sdk/sdk.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
-export class UsersService {
-  private userPool: CognitoUserPool;
+export class UsersService extends AwsSdk {
+  async me(accessToken: string) {
+    const params = {
+      AccessToken: accessToken,
+    };
 
-  constructor(
-    private secretService: SecretsService,
-    @Inject('awsSecrets')
-    private readonly awsSecrets: string,
-  ) {
-    this.userPool = new CognitoUserPool({
-      UserPoolId: awsSecrets['AWS_COGNITO_USER_POOL_ID'],
-      ClientId: awsSecrets['AWS_COGNITO_CLIENT_ID'],
+    return new Promise((resolve, reject) => {
+      this.clientCognito
+        .getUser(params)
+        .then((res) => {
+          const usersAttr: any = res.UserAttributes.reduce(
+            (result, { Name, Value }) => {
+              return { ...result, [Name]: Value };
+            },
+            {},
+          );
+
+          resolve(new HttpException(usersAttr, HttpStatus.OK));
+        })
+
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
+    });
+  }
+
+  async list() {
+    const params = {
+      UserPoolId: this.awsSecrets['AWS_COGNITO_USER_POOL_ID'],
+      AttributesToGet: ['name', 'email'],
+    };
+
+    return new Promise((resolve, reject) => {
+      this.clientCognito
+        .listUsers(params)
+        .then((res) => {
+          const users = res.Users.map((user) => {
+            const userAttr = Object.entries(user.Attributes).reduce(
+              (previusValue, currentValue) => {
+                const [key, { Name: name, Value: value }] = previusValue;
+                const [key2, { Name: name2, Value: value2 }] = currentValue;
+
+                return Object.assign({ [name]: value, [name2]: value2 });
+              },
+            );
+
+            delete user.Attributes;
+
+            return { ...userAttr, ...user };
+          });
+
+          resolve(new HttpException(users, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
     });
   }
 
   async create({ name, email, password }: CreateUserDto) {
-    const nameAttribute = new CognitoUserAttribute({
-      Name: 'name',
-      Value: name,
-    });
-
-    const emailAttribute = new CognitoUserAttribute({
-      Name: 'email',
-      Value: email,
-    });
-
-    return new Promise((resolve, reject) =>
-      this.userPool.signUp(
-        email,
-        password,
-        [emailAttribute, nameAttribute],
-        null,
-        (err, result) => {
-          if (err) {
-            reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-          } else {
-            resolve(result);
-          }
-        },
-      ),
-    );
-  }
-
-  async update({ name, email, password, newEmail }: UpdateUserDto) {
-    const newEmailInCognito = new CognitoUserAttribute({
-      Name: 'email',
-      Value: newEmail,
-    });
-
-    const newNameInCognito = new CognitoUserAttribute({
-      Name: 'name',
-      Value: name,
-    });
-
-    const userData = {
+    const params = {
+      ClientId: this.awsSecrets['AWS_COGNITO_CLIENT_ID'],
+      Password: password,
       Username: email,
-      Pool: this.userPool,
+
+      UserAttributes: [
+        {
+          Name: 'name',
+          Value: name,
+        },
+      ],
     };
 
-    const authenticationDetails = new AuthenticationDetails({
-      Username: email,
-      Password: password,
-    });
+    return new Promise((resolve, reject) => {
+      this.clientCognito
+        .signUp(params)
+        .then((res) => {
+          const params = {
+            GroupName: 'real_state_broker',
+            UserPoolId: this.awsSecrets['AWS_COGNITO_USER_POOL_ID'],
+            Username: email,
+          };
 
-    const userCognito = new CognitoUser(userData);
+          this.clientCognito
+            .adminAddUserToGroup(params)
+            .then((res) => {
+              resolve(new HttpException(res.$metadata, HttpStatus.OK));
+            })
+            .catch((err) => {
+              reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+            });
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
+    });
+  }
+
+  async update({ access_token, ...updateUserDto }: UpdateUserDto) {
+    const UserAttributes = Object.entries(updateUserDto).map(
+      ([_key, _value]) => ({
+        Name: _key,
+        Value: _value,
+      }),
+    );
+
+    const params = {
+      AccessToken: access_token,
+      UserAttributes,
+    };
 
     return new Promise((resolve, reject) => {
-      userCognito.authenticateUser(authenticationDetails, {
-        onSuccess: (result) => {
-          resolve(
-            new Promise(function (resolve, reject) {
-              userCognito.updateAttributes(
-                [newNameInCognito, newEmailInCognito],
-                (err, result) => {
-                  if (err)
-                    reject(
-                      new HttpException(err.message, HttpStatus.BAD_REQUEST),
-                    );
-                  resolve(new HttpException(result, HttpStatus.OK));
-                },
-              );
-            }),
-          );
-        },
-        onFailure: (err) => {
+      this.clientCognito
+        .updateUserAttributes(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
           reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        },
-      });
+        });
     });
   }
 
   async delete({ email }: DeleteUserDto) {
-    const cognitoUser = new CognitoUser({
+    const params = {
+      UserPoolId: this.awsSecrets['AWS_COGNITO_USER_POOL_ID'],
       Username: email,
-      Pool: this.userPool,
-    });
+    };
 
     return new Promise((resolve, reject) => {
-      cognitoUser.deleteUser((err, result) => {
-        if (err) {
-          return reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
-        }
-
-        resolve(new HttpException(result, HttpStatus.OK));
-      });
+      this.clientCognito
+        .adminDeleteUser(params)
+        .then((res) => {
+          resolve(new HttpException(res, HttpStatus.OK));
+        })
+        .catch((err) => {
+          reject(new HttpException(err.message, HttpStatus.BAD_REQUEST));
+        });
     });
   }
 }
